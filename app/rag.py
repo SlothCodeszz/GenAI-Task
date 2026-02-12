@@ -90,7 +90,7 @@ def index_chunks(chunks: list[Chunk], reset: bool = False) -> dict[str, Any]:
     }
 
 
-def retrieve(question: str, top_k: int = 5) -> list[dict[str, Any]]:
+def retrieve(question: str, top_k: int = 3) -> list[dict[str, Any]]:
     import faiss
 
     if not INDEX_PATH.exists() or not META_PATH.exists():
@@ -99,11 +99,14 @@ def retrieve(question: str, top_k: int = 5) -> list[dict[str, Any]]:
     index = faiss.read_index(str(INDEX_PATH))
     meta = _load_meta()
 
+    actual_k = min(top_k, len(meta))
+    if actual_k == 0: return []
+
     q = embed_text(question)
     q = q / (np.linalg.norm(q) + 1e-12)
     q = q.reshape(1, -1)
 
-    scores, idxs = index.search(q, top_k)
+    scores, idxs = index.search(q, actual_k)
 
     out: list[dict[str, Any]] = []
     for rank, i in enumerate(idxs[0]):
@@ -119,3 +122,57 @@ def retrieve(question: str, top_k: int = 5) -> list[dict[str, Any]]:
             }
         )
     return out
+
+def generate_answer(question: str, top_k: int =3, max_tokens: int = 200) -> dict[str, Any]:
+    """
+    Retrieve context from teh FAISS index and generate a grounded answer using Ollama.
+    Returns answer + citations(file paths) + retrieved snippets.
+    """
+    hits = retrieve(question, top_k=top_k)
+
+    if not hits:
+        return {
+            "answer": "I couldn't find relevant context in the indexed repository for that question.",
+            "sources": [],
+            "retrieved": [],
+        }
+
+    context_blocks: list[str] = []
+    sources: list[dict[str, Any]] = []
+
+    for h in hits:
+        path = h["meta"]["path"]
+        snippet = h["text"]
+        context_blocks.append(f"[SOURCE: {path}]\n{snippet}\n")
+        sources.append({"path": path, "snippet": snippet[:300]})
+
+    system_rules = (
+        "You are a code documentation assistant.\n"
+        "Answer ONLY using the provided context.\n"
+        "If the context does not contain the answer, say you cannot find it.\n"
+        "Be concise and technical.\n"
+        "Cite sources by file path (e.g., app/loaders.py) when relevant.\n"
+    )
+
+    context_text = "\n".join(context_blocks)
+ 
+    prompt = (
+        system_rules
+        + "\n\nCONTEXT:\n"
+        + context_text
+        + "\n\nQUESTION:\n"
+        + question
+        + "\n\nANSWER:"
+    )
+
+    resp = ollama.generate(model=settings.llm_model, prompt=prompt, options={"num_predict": max_tokens, "temperature": 0.2}, stream=False,)
+
+    answer_text = resp.get("response", "").strip()
+
+    return {
+        "answer": answer_text,
+        "sources": sources,
+        "retrieved": hits,
+    }
+
+print("rag.py loaded OK; generate_answer exists:", "generate_answer" in globals())

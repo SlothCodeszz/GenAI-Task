@@ -8,7 +8,7 @@ class Settings:
     faiss_dir: Path = Path(__file__).resolve().parent.parent / "artifacts" / "faiss"
 
     # Ollama models
-    embed_model: str = "nomic-embed-text"
+    embed_model: str = "all-minilm"
     llm_model: str = "llama3.2:1b"
 
     # File filtering
@@ -16,8 +16,8 @@ class Settings:
     ignore_dirs: tuple[str, ...] = ("venv", ".git", "node_modules", "__pycache__", "dist", "build", "artifacts", ".mypy_cache")
 
     # Chunking
-    chunk_chars: int = 1000
-    chunk_overlap: int = 150
+    chunk_chars: int = 400
+    chunk_overlap: int = 50
     max_file_bytes: int = 300_000
 
 

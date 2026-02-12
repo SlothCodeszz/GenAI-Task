@@ -49,12 +49,13 @@ def _fixed_chunk(text: str, chunk_chars: int, overlap: int) -> list[str]:
     chunks: list[str] = []
     start = 0
     n = len(text)
+    if n == 0: return [] 
     while start < n:
         end = min(start + chunk_chars, n)
         chunks.append(text[start:end])
         if end == n:
             break
-        start = max(0, end - overlap)
+        start = end - overlap
         return chunks
     
 def _python_chunks(text: str) -> list[str]:
@@ -80,7 +81,7 @@ def _python_chunks(text: str) -> list[str]:
     # Cap blocks to find chunk size
     out: list[str] = []
     for b in blocks:
-        if len(b) <= settings.chunl_chars:
+        if len(b) <= settings.chunk_chars:
             out.append(b)
         else:
             out.extend(_fixed_chunk(b, settings.chunk_chars, settings.chunk_overlap))
