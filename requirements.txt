@@ -7,11 +7,11 @@ bcrypt==5.0.0
 build==1.4.0
 certifi==2026.1.4
 charset-normalizer==3.4.4
-chromadb==1.5.0
 click==8.3.1
 colorama==0.4.6
 distro==1.9.0
 durationpy==0.10
+faiss-cpu==1.13.2
 fastapi==0.128.7
 filelock==3.20.3
 flatbuffers==25.12.19
@@ -93,6 +93,3 @@ watchfiles==1.1.1
 websocket-client==1.9.0
 websockets==16.0
 zipp==3.23.0
-ollama
-faiss-cpu
-numpy
