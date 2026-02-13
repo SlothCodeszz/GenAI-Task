@@ -1,18 +1,25 @@
 Code Documentation Assistant: RAG Engineering Assignment
-Summary
-This project implements a lightweight, local-first approached Retrieval-Augmented Generation (RAG) pipeline designed to ingest, index and query a code repository. The system prioritises retrieval correctness and groundedness over UI polishing, providing a technical assistant that cites its sources directly from the local codebase.
+
 ---
-Architectural Philosophy
+
+Summary:-
+This project implements a lightweight, local-first approached Retrieval-Augmented Generation (RAG) pipeline designed to ingest, index and query a code repository. The system prioritises retrieval correctness and groundedness over UI polishing, providing a technical assistant that cites its sources directly from the local codebase.
+
+---
+
+Architectural Philosophy:-
 I followed a modular "Loader → Chunker → Embedder → Retriever → Generator" design pattern. This separation of concerns ensures that each component can be independently tested, optimised, or replaced as the system scales.
 
 Key Design Principles:
-Deterministic Retrieval: Using explicit metadata like file paths and chunk IDs to ensure 1:1 traceability between answers and code.
+• Deterministic Retrieval: Using explicit metadata like file paths and chunk IDs to ensure 1:1 traceability between answers and code.
 
-Hardware-Aware Engineering: Adapted the pipeline to run reliably on constrained local hardware by selecting lightweight models and optimised vector search.
+• Hardware-Aware Engineering: Adapted the pipeline to run reliably on constrained local hardware by selecting lightweight models and optimised vector search.
 
-Local-First Resilience: Zero external API dependencies using Ollama to ensure 100% uptime and data privacy during the evaluation phase.
+• Local-First Resilience: Zero external API dependencies using Ollama to ensure 100% uptime and data privacy during the evaluation phase.
 
-Technical Decisions & Trade-offs
+---
+
+Technical Decisions & Trade-offs:-
 1. Vector Store: FAISS (Facebook AI Similarity Search)
 Decision: Pivoted from ChromaDB to FAISS for local persistence.
 
@@ -28,30 +35,38 @@ Chunking: Implemented a fixed-size overlapping strategy (400 chars / 50 overlap)
 
 Grounding: The system prompt explicitly instructs the model to refuse answering if the context is insufficient, effectively mitigating hallucinations.
 
-Azure-Native Productionisation Strategy
+---
+
+Azure-Native Productionisation Strategy:-
 To transition this from a local prototype to an enterprise-grade service, I would implement the following Azure architecture:
 
-Vector Database: Migrate from local FAISS to Azure AI Search. Provide managed scalability, hybrid search like combining vectors with keywords and enterprise-grade security.
+• Vector Database: Migrate from local FAISS to Azure AI Search. Provide managed scalability, hybrid search like combining vectors with keywords and enterprise-grade security.
 
-Orchestration: Wrapping the RAG logic in a FastAPI service deployed on Azure Kubernetes Service (AKS) for horizontal scaling and high availability.
+• Orchestration: Wrapping the RAG logic in a FastAPI service deployed on Azure Kubernetes Service (AKS) for horizontal scaling and high availability.
 
-Inference: Use Azure OpenAI Service for production-grade reasoning and lower latency.
+• Inference: Use Azure OpenAI Service for production-grade reasoning and lower latency.
 
-Observability: Would integrate Azure Monitor and Prometheus to track RAG metrics such as retrieval latency, token usage and groundedness scores.
+• Observability: Would integrate Azure Monitor and Prometheus to track RAG metrics such as retrieval latency, token usage and groundedness scores.
 
-Development Workflow & AI Usage
-AI as a Force Multiplier: AI coding assistants were utilised for rapid scaffolding and boilerplate generation.
+---
 
-The "Lead" Guardrail: Every architectural decision—from vector normalisation to prompt constraints was manually verified. I prioritise AI for speed on "known patterns" while retaining total manual control over the system's logic and reliability.
+Development Workflow & AI Usage:-
+• AI as a Force Multiplier: AI coding assistants were utilised for rapid scaffolding and boilerplate generation.
 
-Future Enhancements
-AST-Aware Chunking: Moving beyond fixed-size windows to understand Python function/class boundaries for even higher retrieval precision.
+• The "Lead" Guardrail: Every architectural decision—from vector normalisation to prompt constraints was manually verified. I prioritise AI for speed on "known patterns" while retaining total manual control over the system's logic and reliability.
 
-Reranking Layer: Adding a Cross-Encoder to re-rank top results before passing them to the LLM.
+---
 
-Incremental Indexing: Implementing a delta-logic to only re-index files that have changed.
+Future Enhancements:-
+• AST-Aware Chunking: Moving beyond fixed-size windows to understand Python function/class boundaries for even higher retrieval precision.
 
-Quick Setup Instructions
+• Reranking Layer: Adding a Cross-Encoder to re-rank top results before passing them to the LLM.
+
+• Incremental Indexing: Implementing a delta-logic to only re-index files that have changed.
+
+---
+
+Quick Setup Instructions:-
 To run this assistant locally, follow these steps:
 
 Environment Setup:
