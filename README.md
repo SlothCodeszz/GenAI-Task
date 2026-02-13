@@ -1,7 +1,7 @@
 Code Documentation Assistant: RAG Engineering Assignment
 Summary
 This project implements a lightweight, local-first approached Retrieval-Augmented Generation (RAG) pipeline designed to ingest, index and query a code repository. The system prioritises retrieval correctness and groundedness over UI polishing, providing a technical assistant that cites its sources directly from the local codebase.
-
+---
 Architectural Philosophy
 I followed a modular "Loader → Chunker → Embedder → Retriever → Generator" design pattern. This separation of concerns ensures that each component can be independently tested, optimised, or replaced as the system scales.
 
